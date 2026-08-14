@@ -17,8 +17,8 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::compress;
-use crate::wbuffer::WBuffer;
 use crate::error::{Context, Error, Result};
+use crate::wbuffer::WBuffer;
 use tree::{serialize_tree, TreeWriter};
 
 /// ROOT version stamp written into the header.
@@ -90,7 +90,10 @@ fn root_datime() -> u32 {
     let year = if m <= 2 { y + 1 } else { y };
 
     let yy = (year - 1995).max(0) as u32;
-    (yy << 26) | ((m as u32) << 22) | ((d as u32) << 17) | ((hour as u32) << 12)
+    (yy << 26)
+        | ((m as u32) << 22)
+        | ((d as u32) << 17)
+        | ((hour as u32) << 12)
         | ((min as u32) << 6)
         | sec as u32
 }
@@ -241,7 +244,13 @@ impl RootWriter {
     ///
     /// The payload is whatever the class serialises to, so a crate modelling a
     /// ROOT class can place its own objects in the file.
-    pub fn write_object(&mut self, class: &str, name: &str, title: &str, payload: &[u8]) -> Result<()> {
+    pub fn write_object(
+        &mut self,
+        class: &str,
+        name: &str,
+        title: &str,
+        payload: &[u8],
+    ) -> Result<()> {
         let obj_len = payload.len();
         let stored = if obj_len > COMPRESS_THRESHOLD {
             let packed = compress::compress_zlib(payload, ZLIB_LEVEL)?;
@@ -393,8 +402,7 @@ impl RootWriter {
         self.data.extend_from_slice(&1i16.to_be_bytes()); // TFree version
         self.data
             .extend_from_slice(&(file_end as i32).to_be_bytes()); // fFirst
-        self.data
-            .extend_from_slice(&2_000_000_000i32.to_be_bytes()); // fLast
+        self.data.extend_from_slice(&2_000_000_000i32.to_be_bytes()); // fLast
 
         // --- the file's own key and directory record ----------------------
         let klen = key_len("TFile", &self.name, "") as usize;
@@ -453,7 +461,6 @@ impl RootWriter {
             )));
         }
 
-        std::fs::write(&self.path, &self.data)
-            .context(format!("writing {}", self.path.display()))
+        std::fs::write(&self.path, &self.data).context(format!("writing {}", self.path.display()))
     }
 }

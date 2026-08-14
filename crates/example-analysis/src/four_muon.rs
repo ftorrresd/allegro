@@ -148,7 +148,9 @@ fn score_quadruplet(mut quad: [Muon; 4]) -> Option<Winner> {
 
     PAIRINGS
         .iter()
-        .filter(|&&[i, j, k, l]| quad[i].charge != quad[j].charge && quad[k].charge != quad[l].charge)
+        .filter(|&&[i, j, k, l]| {
+            quad[i].charge != quad[j].charge && quad[k].charge != quad[l].charge
+        })
         .filter_map(|&[i, j, k, l]| {
             // Stored as float, exactly as the original does.
             let mut z1 = (p4[i] + p4[j]).mass() as f32;
@@ -156,8 +158,8 @@ fn score_quadruplet(mut quad: [Muon; 4]) -> Option<Winner> {
             if (f64::from(z2) - Z_MASS).abs() < (f64::from(z1) - Z_MASS).abs() {
                 std::mem::swap(&mut z1, &mut z2);
             }
-            let in_window = (40.0..=120.0).contains(&f64::from(z1))
-                && (12.0..=120.0).contains(&f64::from(z2));
+            let in_window =
+                (40.0..=120.0).contains(&f64::from(z1)) && (12.0..=120.0).contains(&f64::from(z2));
             in_window.then(|| Winner {
                 muons: quad,
                 z1_mass: z1,

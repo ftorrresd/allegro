@@ -98,9 +98,8 @@ impl SutBuffer {
     }
 
     pub fn get_i32(&self, kind: i32) -> Option<i32> {
-        self.get(kind).and_then(|d| {
-            (d.len() >= 4).then(|| i32::from_be_bytes([d[0], d[1], d[2], d[3]]))
-        })
+        self.get(kind)
+            .and_then(|d| (d.len() >= 4).then(|| i32::from_be_bytes([d[0], d[1], d[2], d[3]])))
     }
 
     pub fn add(&mut self, kind: i32, data: Vec<u8>) {
@@ -159,7 +158,12 @@ impl SutBuffer {
             if p + 4 > buf.len() {
                 return Err("truncated GSI buffer".into());
             }
-            Ok(i32::from_be_bytes([buf[p], buf[p + 1], buf[p + 2], buf[p + 3]]))
+            Ok(i32::from_be_bytes([
+                buf[p],
+                buf[p + 1],
+                buf[p + 2],
+                buf[p + 3],
+            ]))
         };
         let step = read_i32(pos)?;
         pos += 4;

@@ -7,9 +7,9 @@
 
 use crate::buffer::RBuffer;
 use crate::compress;
+use crate::error::{Error, Result};
 use crate::file::TKey;
 use crate::source::ReadAt;
-use crate::error::{Error, Result};
 
 /// The element type a leaf holds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -182,7 +182,11 @@ impl Tree {
         let branches = read_branch_array(&mut b)?;
 
         Ok(Self {
-            name: if name.is_empty() { key.name.clone() } else { name },
+            name: if name.is_empty() {
+                key.name.clone()
+            } else {
+                name
+            },
             title,
             entries,
             branches,
@@ -343,7 +347,8 @@ pub fn read_basket(src: &mut dyn ReadAt, branch: &Branch, index: usize) -> Resul
     let seek = *branch
         .basket_seek
         .get(index)
-        .ok_or_else(|| Error::format(format!("basket {index} out of range")))? as u64;
+        .ok_or_else(|| Error::format(format!("basket {index} out of range")))?
+        as u64;
     let nbytes = branch.basket_bytes[index] as usize;
     if seek == 0 || nbytes == 0 {
         return Err(Error::format(format!(

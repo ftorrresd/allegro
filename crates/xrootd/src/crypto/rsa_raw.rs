@@ -38,7 +38,11 @@ fn left_pad(v: &[u8], n: usize) -> Vec<u8> {
 /// PKCS#1 v1.5 block type 1: `00 01 FF..FF 00 || M`.
 fn pad_type1(msg: &[u8], k: usize) -> Result<Vec<u8>, String> {
     if msg.len() + 11 > k {
-        return Err(format!("chunk of {} too long for {}-byte key", msg.len(), k));
+        return Err(format!(
+            "chunk of {} too long for {}-byte key",
+            msg.len(),
+            k
+        ));
     }
     let mut out = Vec::with_capacity(k);
     out.push(0x00);

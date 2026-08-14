@@ -677,8 +677,8 @@ impl Histogram {
         w.tattmarker(1, 1, 1.0);
 
         w.i32(self.contents.len() as i32); // fNcells
-        // ROOT leaves the y-axis title offset at zero and the other two at
-        // one, whatever the dimension.
+                                           // ROOT leaves the y-axis title offset at zero and the other two at
+                                           // one, whatever the dimension.
         write_axis(&mut w, "xaxis", &self.x, 1.0);
         write_axis(&mut w, "yaxis", &self.y, 0.0);
         write_axis(&mut w, "zaxis", &self.z, 1.0);
@@ -855,8 +855,7 @@ fn variance_root(variance: f64) -> f64 {
 
 /// Splits `TH1D` into its dimension and its storage precision.
 fn split_class(class: &str) -> Result<(usize, Precision)> {
-    let unsupported =
-        || Error::decode(format!("{class} is not a histogram this crate can read"));
+    let unsupported = || Error::decode(format!("{class} is not a histogram this crate can read"));
     let (dim, rest) = match class.strip_prefix("TH1") {
         Some(rest) => (1, rest),
         None => (2, class.strip_prefix("TH2").ok_or_else(unsupported)?),
@@ -1190,7 +1189,11 @@ mod tests {
             Precision::F64,
         ]
         .iter()
-        .map(|&p| Histogram::h1("h", "", axis()).with_precision(p).class_name())
+        .map(|&p| {
+            Histogram::h1("h", "", axis())
+                .with_precision(p)
+                .class_name()
+        })
         .collect();
         assert_eq!(names, ["TH1C", "TH1S", "TH1I", "TH1L", "TH1F", "TH1D"]);
 

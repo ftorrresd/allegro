@@ -2,7 +2,7 @@
 #
 # Starts a CMS NanoAOD analysis from nothing:
 #
-#   curl -sSL https://raw.githubusercontent.com/ftorresd/allegro/main/scripts/bootstrap.sh | bash
+#   curl -sSL https://raw.githubusercontent.com/ftorrresd/allegro/main/scripts/bootstrap.sh | bash
 #
 # It asks for a name, clones allegro next to where you ran it, and creates the
 # analysis as a separate git repository beside it:
@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-REPO="${ALLEGRO_REPO:-https://github.com/ftorresd/allegro.git}"
+REPO="${ALLEGRO_REPO:-https://github.com/ftorrresd/allegro.git}"
 REF="${ALLEGRO_REF:-}"
 
 say()  { printf '%s\n' "$*"; }

@@ -106,7 +106,11 @@ fn check_against_root(name: &str, h: &Histogram, want: &Expected) {
 
     assert_eq!(h.ncells(), want.cells.len(), "{name}: cell count");
     for (bin, content, error) in &want.cells {
-        assert_eq!(h.bin_content(*bin), *content, "{name}: content of bin {bin}");
+        assert_eq!(
+            h.bin_content(*bin),
+            *content,
+            "{name}: content of bin {bin}"
+        );
         assert_eq!(h.bin_error(*bin), *error, "{name}: error of bin {bin}");
     }
 }
@@ -244,7 +248,8 @@ fn a_written_histogram_reads_back_identical() {
         h2.fill_xy(i as f64, -3.0 + 0.03 * i as f64);
     }
 
-    w.write_named("provenance", "allegro integration test").unwrap();
+    w.write_named("provenance", "allegro integration test")
+        .unwrap();
     w.write_histogram(&h1).unwrap();
     w.write_histogram(&h2).unwrap();
     w.finish().expect("finish");

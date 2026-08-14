@@ -27,7 +27,10 @@ fn der_tlv(tag: u8, body: &[u8]) -> Vec<u8> {
         out.push(len as u8);
     } else {
         let bytes = len.to_be_bytes();
-        let first = bytes.iter().position(|&b| b != 0).unwrap_or(bytes.len() - 1);
+        let first = bytes
+            .iter()
+            .position(|&b| b != 0)
+            .unwrap_or(bytes.len() - 1);
         let sig = &bytes[first..];
         out.push(0x80 | sig.len() as u8);
         out.extend_from_slice(sig);
@@ -70,10 +73,7 @@ fn canonical_der(name: &Name) -> Result<Vec<u8>, String> {
                 .oid
                 .to_der()
                 .map_err(|e| format!("encoding attribute type: {e}"))?;
-            let raw = ava
-                .value
-                .value()
-                .to_vec();
+            let raw = ava.value.value().to_vec();
             // Every string-valued attribute becomes a canonicalised UTF8String.
             let value_der = der_tlv(0x0c, &canon_string(&raw));
             let mut body = oid_der;
@@ -151,8 +151,14 @@ mod tests {
         assert_eq!(certs.len(), 2, "expected proxy + user certificate");
 
         // Proxy certificate: subject/issuer hashes.
-        assert_eq!(name_hash(&certs[0].tbs_certificate.subject).unwrap(), "1b0fc7a5");
-        assert_eq!(name_hash(&certs[0].tbs_certificate.issuer).unwrap(), "8ef0a748");
+        assert_eq!(
+            name_hash(&certs[0].tbs_certificate.subject).unwrap(),
+            "1b0fc7a5"
+        );
+        assert_eq!(
+            name_hash(&certs[0].tbs_certificate.issuer).unwrap(),
+            "8ef0a748"
+        );
         assert_eq!(
             name_hash_old(&certs[0].tbs_certificate.subject).unwrap(),
             "0c3fc8cd"
@@ -163,8 +169,14 @@ mod tests {
         );
 
         // User certificate: its issuer is the CA we must advertise to the peer.
-        assert_eq!(name_hash(&certs[1].tbs_certificate.subject).unwrap(), "8ef0a748");
-        assert_eq!(name_hash(&certs[1].tbs_certificate.issuer).unwrap(), "5168735f");
+        assert_eq!(
+            name_hash(&certs[1].tbs_certificate.subject).unwrap(),
+            "8ef0a748"
+        );
+        assert_eq!(
+            name_hash(&certs[1].tbs_certificate.issuer).unwrap(),
+            "5168735f"
+        );
         assert_eq!(
             name_hash_old(&certs[1].tbs_certificate.issuer).unwrap(),
             "4339b4bc"

@@ -44,13 +44,17 @@ IDENT="${NAME//-/_}"
 relpath() {
     local from="${1%/}" to="${2%/}" common up=""
     common="$from"
-    while [ "${to#"$common"/}" = "$to" ] && [ "$to" != "$common" ]; do
+    while [ "$to" != "$common" ] && [ "${to#"$common"/}" = "$to" ]; do
+        # Nothing above "/" to climb to: the two live in different top-level
+        # trees, and what is left of `to` is the whole path minus its slash.
+        [ "$common" = "/" ] && break
         common="$(dirname "$common")"
         up="../$up"
-        [ "$common" = "/" ] && break
     done
     if [ "$to" = "$common" ]; then
         printf '%s' "${up%/}"
+    elif [ "$common" = "/" ]; then
+        printf '%s%s' "$up" "${to#/}"
     else
         printf '%s%s' "$up" "${to#"$common"/}"
     fi
@@ -66,7 +70,7 @@ name = "$NAME"
 description = "A CMS NanoAOD analysis"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.83"
+rust-version = "1.85"
 
 [[bin]]
 name = "$IDENT"

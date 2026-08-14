@@ -17,8 +17,8 @@
 //! assert_eq!(tree.rows().unwrap(), 3);
 //! ```
 
-use crate::wbuffer::WBuffer;
 use crate::error::{Error, Result};
+use crate::wbuffer::WBuffer;
 
 /// `ROOT::TIOFeatures` as ROOT writes it — an opaque, fixed 11-byte record
 /// (byte count, version and the feature bits, all currently constant).
@@ -360,10 +360,7 @@ impl TreeWriter {
                 Some(n) if n != b.rows => {
                     return Err(Error::format(format!(
                         "tree {}: column {} has {} rows but {} has {n}",
-                        self.name,
-                        b.name,
-                        b.rows,
-                        self.branches[0].name,
+                        self.name, b.name, b.rows, self.branches[0].name,
                     )));
                 }
                 Some(_) => {}
@@ -470,7 +467,10 @@ mod tests {
     #[test]
     fn values_are_packed_big_endian() {
         let b = OutBranch::new("x", &[1.5f32, -2.0]);
-        assert_eq!(b.payload, [1.5f32.to_be_bytes(), (-2.0f32).to_be_bytes()].concat());
+        assert_eq!(
+            b.payload,
+            [1.5f32.to_be_bytes(), (-2.0f32).to_be_bytes()].concat()
+        );
     }
 
     #[test]
@@ -516,10 +516,7 @@ mod tests {
         assert_eq!(tree.entries, 10);
         assert_eq!(tree.branches.len(), 1);
         assert_eq!(tree.branches[0].name, "run");
-        assert_eq!(
-            tree.branches[0].leaves[0].kind,
-            crate::tree::LeafKind::U32
-        );
+        assert_eq!(tree.branches[0].leaves[0].kind, crate::tree::LeafKind::U32);
     }
 
     #[test]

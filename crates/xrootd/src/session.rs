@@ -3,10 +3,10 @@
 use std::time::Duration;
 
 use crate::conn::Connection;
+use crate::error::{Error, Result};
 use crate::gsi::proxy::{default_proxy_path, ProxyCredential};
 use crate::gsi::{GsiAuthenticator, GsiParams};
 use crate::proto::*;
-use crate::error::{Error, Result};
 
 /// Maximum number of redirects to follow before giving up.
 const MAX_REDIRECTS: usize = 8;
@@ -142,7 +142,10 @@ fn login(conn: &mut Connection) -> Result<Option<String>> {
     let mut req = Request::new(sid, KXR_LOGIN);
     req.param_i32(0, std::process::id() as i32);
     req.param_bytes(4, &uname);
-    req.param_u8(13, KXR_FULLURL | KXR_READRDOK | KXR_HASIPV64 | KXR_REDIRFLAGS);
+    req.param_u8(
+        13,
+        KXR_FULLURL | KXR_READRDOK | KXR_HASIPV64 | KXR_REDIRFLAGS,
+    );
     req.param_u8(14, KXR_VER005 | KXR_ASYNCAP);
     let msg = req.finish(b"");
     conn.send_request(&msg)?;
@@ -248,9 +251,14 @@ impl XrdFile {
 
 /// What a `kXR_open` came back with.
 enum OpenOutcome {
-    Opened { handle: [u8; 4], size: u64 },
+    Opened {
+        handle: [u8; 4],
+        size: u64,
+    },
     /// The file is elsewhere; `target` is where to ask next.
-    Redirect { target: XrdUrl },
+    Redirect {
+        target: XrdUrl,
+    },
 }
 
 fn try_open(session: &mut Session, url: &XrdUrl) -> Result<OpenOutcome> {

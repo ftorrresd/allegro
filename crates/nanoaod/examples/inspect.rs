@@ -54,7 +54,10 @@ fn inspect(path: &str, tree_name: Option<&str>) -> Result<()> {
             println!("  std dev  {:.9}", h.std_dev());
             let contents: f64 = (0..h.ncells()).map(|b| h.bin_content(b)).sum();
             let errors: f64 = (0..h.ncells()).map(|b| h.bin_error(b)).sum();
-            println!("  cells    {} sum={contents} errsum={errors:.9}", h.ncells());
+            println!(
+                "  cells    {} sum={contents} errsum={errors:.9}",
+                h.ncells()
+            );
         }
     }
 
@@ -96,7 +99,11 @@ fn inspect(path: &str, tree_name: Option<&str>) -> Result<()> {
 /// A sum over a branch's values, which is enough to tell two files apart
 /// without printing every number.
 fn column_digest(file: &mut RootFile, tree: &Tree, branch: &str, kind: LeafKind) -> Result<String> {
-    fn sum<T: Element + Into<f64>>(file: &mut RootFile, tree: &Tree, branch: &str) -> Result<String> {
+    fn sum<T: Element + Into<f64>>(
+        file: &mut RootFile,
+        tree: &Tree,
+        branch: &str,
+    ) -> Result<String> {
         let column = file.jagged::<T>(tree, branch)?;
         let values = column.values();
         let total: f64 = values.iter().copied().map(Into::into).sum();

@@ -113,7 +113,9 @@ pub fn compress_zlib(data: &[u8], level: u8) -> Result<Vec<u8>> {
     }
     let body = miniz_oxide::deflate::compress_to_vec_zlib(data, level);
     if body.len() > MAX_BLOCK {
-        return Err(Error::format("compressed block exceeds the 24-bit size field"));
+        return Err(Error::format(
+            "compressed block exceeds the 24-bit size field",
+        ));
     }
     let mut out = Vec::with_capacity(HEADER_LEN + body.len());
     out.extend_from_slice(b"ZL");

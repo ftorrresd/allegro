@@ -82,10 +82,7 @@ impl FsrPhoton {
     /// The CMS FSR working point: soft, central, isolated and close to the
     /// muon relative to its energy.
     fn is_good(&self) -> bool {
-        self.pt > 2.0
-            && self.eta.abs() < 2.4
-            && self.rel_iso03 < 1.8
-            && self.dr_over_et2 < 0.012
+        self.pt > 2.0 && self.eta.abs() < 2.4 && self.rel_iso03 < 1.8 && self.dr_over_et2 < 0.012
     }
 }
 

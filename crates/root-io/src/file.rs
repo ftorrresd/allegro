@@ -2,8 +2,8 @@
 
 use crate::buffer::RBuffer;
 use crate::compress;
-use crate::source::ReadAt;
 use crate::error::{Error, Result};
+use crate::source::ReadAt;
 
 /// A `TKey`: the record header in front of every object in a ROOT file.
 #[derive(Debug, Clone)]

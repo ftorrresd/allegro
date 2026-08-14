@@ -28,10 +28,7 @@ pub struct LocalSource {
 impl LocalSource {
     pub fn open(path: &str) -> Result<Self> {
         let file = File::open(path).context(format!("opening {path}"))?;
-        let size = file
-            .metadata()
-            .context(format!("stat of {path}"))?
-            .len();
+        let size = file.metadata().context(format!("stat of {path}"))?.len();
         Ok(Self {
             file,
             size,
@@ -46,9 +43,10 @@ impl ReadAt for LocalSource {
             .seek(SeekFrom::Start(offset))
             .context(format!("seeking to {offset} in {}", self.path))?;
         let mut buf = vec![0u8; len];
-        self.file
-            .read_exact(&mut buf)
-            .context(format!("reading {len} bytes at {offset} from {}", self.path))?;
+        self.file.read_exact(&mut buf).context(format!(
+            "reading {len} bytes at {offset} from {}",
+            self.path
+        ))?;
         Ok(buf)
     }
     fn size(&self) -> u64 {

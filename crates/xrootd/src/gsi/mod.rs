@@ -28,7 +28,7 @@ use crate::gsi::bucket::*;
 use crate::gsi::proxy::ProxyCredential;
 
 use crate::crypto::{
-    aes128_cbc_encrypt_with_iv, dh::DhKeyPair, dh::parse_peer_public, pem_split, random_tag,
+    aes128_cbc_encrypt_with_iv, dh::parse_peer_public, dh::DhKeyPair, pem_split, random_tag,
     rsa_raw,
 };
 use crate::error::{Context, Error, Result};
@@ -300,6 +300,9 @@ mod tests {
             pick_from_list(Some("bf-cbc:aes-128-cbc"), "aes-128-cbc").unwrap(),
             "aes-128-cbc"
         );
-        assert_eq!(pick_from_list(Some("bf-cbc"), "aes-128-cbc").unwrap(), "bf-cbc");
+        assert_eq!(
+            pick_from_list(Some("bf-cbc"), "aes-128-cbc").unwrap(),
+            "bf-cbc"
+        );
     }
 }

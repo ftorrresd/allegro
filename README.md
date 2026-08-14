@@ -1,5 +1,7 @@
 # allegro
 
+[![CI](https://github.com/ftorrresd/allegro/actions/workflows/ci.yml/badge.svg)](https://github.com/ftorrresd/allegro/actions/workflows/ci.yml)
+
 A toolkit for writing CMS NanoAOD analyses in pure Rust — and, as its worked
 example, a reimplementation of `fourMuonMass.C` that reads a NanoAOD file
 straight from the grid, selects H → ZZ* → 4μ candidates, and writes the
@@ -53,7 +55,7 @@ Only the eleven branches the analysis needs are fetched, as byte ranges — the
 
 ### Rust
 
-1.83 or newer. Install from [rustup.rs](https://rustup.rs):
+1.85 or newer. Install from [rustup.rs](https://rustup.rs):
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -64,7 +66,7 @@ is usually older and its `cargo` may not see your registry:
 
 ```sh
 export PATH="$HOME/.cargo/bin:$PATH"
-cargo --version        # expect 1.83 or newer
+cargo --version        # expect 1.85 or newer
 ```
 
 ### A grid proxy (only for `root://` input)
@@ -92,7 +94,7 @@ One command, from an empty directory where you want your work to live:
 
 ```sh
 mkdir -p ~/work && cd ~/work
-curl -sSL https://raw.githubusercontent.com/ftorresd/allegro/main/scripts/bootstrap.sh | bash
+curl -sSL https://raw.githubusercontent.com/ftorrresd/allegro/main/scripts/bootstrap.sh | bash
 ```
 
 It asks for a name:
@@ -106,7 +108,7 @@ Created /home/you/work/higgs-to-4l
 To skip the prompt, pass the name through:
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/ftorresd/allegro/main/scripts/bootstrap.sh | bash -s -- higgs-to-4l
+curl -sSL https://raw.githubusercontent.com/ftorrresd/allegro/main/scripts/bootstrap.sh | bash -s -- higgs-to-4l
 ```
 
 If you already have allegro checked out, skip the clone:
@@ -390,6 +392,29 @@ ROOT, and only when you change what is covered):
 ```sh
 root -l -b -q crates/histogram/tests/data/make_histograms.C
 ```
+
+### What CI checks
+
+Every push to `main` and every pull request runs
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml), which is four jobs.
+The same four commands, in order, are what to run before pushing:
+
+```sh
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
+rustup run 1.85 cargo check --workspace --all-targets --locked   # the MSRV
+```
+
+Warnings are errors in CI and nowhere else, so a branch stays comfortable to
+experiment on. The fourth job builds a fresh `new-analysis.sh` skeleton
+against the checkout: the generated `src/main.rs` is the only code in the
+repository that nothing else compiles, so an API change that leaves the
+template behind would otherwise go unnoticed. The MSRV job reads its version
+out of `Cargo.toml`, so bumping `rust-version` there is enough.
+
+No job needs a grid proxy, ROOT, or the network beyond crates.io — the
+histogram tests read the ROOT fixture committed in the repository.
 
 ---
 

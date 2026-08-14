@@ -126,8 +126,10 @@ impl WBuffer {
                 self.u32(K_NEW_CLASS_TAG);
                 self.cstring(class);
                 // Later occurrences point at the class tag itself.
-                self.classes
-                    .insert(class.to_string(), (tag_pos + self.origin) as u32 + K_MAP_OFFSET);
+                self.classes.insert(
+                    class.to_string(),
+                    (tag_pos + self.origin) as u32 + K_MAP_OFFSET,
+                );
             }
         }
         if let Some(id) = object_id {

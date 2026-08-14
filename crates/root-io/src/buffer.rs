@@ -133,7 +133,11 @@ impl<'a> RBuffer<'a> {
     /// A ROOT `TString`: a one-byte length, or `255` followed by a 32-bit one.
     pub fn tstring(&mut self) -> Result<String> {
         let n = self.u8()?;
-        let len = if n == 255 { self.u32()? as usize } else { n as usize };
+        let len = if n == 255 {
+            self.u32()? as usize
+        } else {
+            n as usize
+        };
         let b = self.take(len)?;
         Ok(String::from_utf8_lossy(b).into_owned())
     }

@@ -45,7 +45,9 @@ fn der_read_tlv<'a>(
     }
     let tag = buf[*pos];
     if tag != want_tag {
-        return Err(format!("expected DER tag 0x{want_tag:02x}, found 0x{tag:02x}"));
+        return Err(format!(
+            "expected DER tag 0x{want_tag:02x}, found 0x{tag:02x}"
+        ));
     }
     *pos += 1;
     let first = buf[*pos];
@@ -83,9 +85,8 @@ pub fn parse_peer_public(buf: &[u8]) -> Result<(DhParams, BigUint), String> {
         .find("---EPUB--")
         .ok_or("key-agreement buffer has no ---EPUB--- marker")?;
     let hex = text[bpub + 10..epub].trim();
-    let peer = BigUint::from_bytes_be(
-        &hex_to_bytes(hex).ok_or("peer public value is not valid hex")?,
-    );
+    let peer =
+        BigUint::from_bytes_be(&hex_to_bytes(hex).ok_or("peer public value is not valid hex")?);
 
     let pem_text = text[..bpub].to_string();
     let blocks = pem_split(pem_text.as_bytes())?;
@@ -94,14 +95,7 @@ pub fn parse_peer_public(buf: &[u8]) -> Result<(DhParams, BigUint), String> {
         .find(|b| b.label.contains("DH PARAMETERS"))
         .ok_or("no DH PARAMETERS block in key-agreement buffer")?;
     let (p, g) = der_parse_dh(&params.der)?;
-    Ok((
-        DhParams {
-            p,
-            g,
-            pem_text,
-        },
-        peer,
-    ))
+    Ok((DhParams { p, g, pem_text }, peer))
 }
 
 impl DhKeyPair {

@@ -47,8 +47,8 @@ fn is_self_signed(c: &Certificate) -> bool {
 
 impl ProxyCredential {
     pub fn load(path: &Path) -> Result<Self> {
-        let data = std::fs::read(path)
-            .context(format!("reading proxy credential {}", path.display()))?;
+        let data =
+            std::fs::read(path).context(format!("reading proxy credential {}", path.display()))?;
         let blocks = pem_split(&data).context("parsing proxy PEM")?;
 
         let mut certs = Vec::new();
@@ -187,6 +187,9 @@ mod tests {
         // The advertised CA is the issuer of the user certificate.
         assert_eq!(p.issuer_hash, "5168735f|4339b4bc");
         assert!(p.chain_pem.starts_with(b"-----BEGIN CERTIFICATE-----"));
-        assert!(p.public_key_pem().unwrap().starts_with(b"-----BEGIN PUBLIC KEY-----"));
+        assert!(p
+            .public_key_pem()
+            .unwrap()
+            .starts_with(b"-----BEGIN PUBLIC KEY-----"));
     }
 }

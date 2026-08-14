@@ -303,7 +303,10 @@ impl<'a, T, const K: usize> Iterator for Combinations<'a, T, K> {
 
         // Advance the rightmost index that still has room, then repack the
         // ones after it — the standard lexicographic successor.
-        match (0..K).rev().find(|&i| self.indices[i] < self.items.len() - K + i) {
+        match (0..K)
+            .rev()
+            .find(|&i| self.indices[i] < self.items.len() - K + i)
+        {
             Some(i) => {
                 self.indices[i] += 1;
                 for j in i + 1..K {
@@ -377,9 +380,7 @@ mod tests {
         assert_eq!(combinations::<_, 4>(&xs).count(), 5);
         assert_eq!(combinations::<_, 5>(&xs).count(), 1);
 
-        let all: Vec<[i32; 4]> = combinations::<_, 4>(&xs)
-            .map(|c| c.map(|x| *x))
-            .collect();
+        let all: Vec<[i32; 4]> = combinations::<_, 4>(&xs).map(|c| c.map(|x| *x)).collect();
         assert_eq!(all[0], [1, 2, 3, 4]);
         assert_eq!(all[4], [2, 3, 4, 5]);
     }

@@ -6,7 +6,7 @@ tree. It assumes you can write Rust, but not that you know this codebase.
 ## Start from the generator
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/ftorresd/allegro/main/scripts/bootstrap.sh | bash
+curl -sSL https://raw.githubusercontent.com/ftorrresd/allegro/main/scripts/bootstrap.sh | bash
 ```
 
 It asks for a name, clones allegro, and creates the analysis as a **separate

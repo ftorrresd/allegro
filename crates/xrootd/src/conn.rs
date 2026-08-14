@@ -4,8 +4,8 @@ use std::io::{self, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-use crate::proto::*;
 use crate::error::{Context, Error, Result};
+use crate::proto::*;
 
 /// The byte stream underneath the XRootD framing.
 ///
@@ -110,8 +110,8 @@ impl Connection {
             })
             .next()
             .ok_or_else(|| {
-                let cause = last_err
-                    .unwrap_or_else(|| io::Error::other("host resolved to no addresses"));
+                let cause =
+                    last_err.unwrap_or_else(|| io::Error::other("host resolved to no addresses"));
                 Error::io(format!("cannot connect to {host}:{port}"), cause)
             })?;
         stream.set_nodelay(true).context("set TCP_NODELAY")?;
@@ -166,8 +166,7 @@ impl Connection {
             .context("sending initial handshake")?;
         self.transport.flush().context("flushing handshake")?;
         let resp = self.read_response()?;
-        let Some((protover, msgval)) = be_i32(&resp.body)
-            .zip(resp.body.get(4..).and_then(be_i32))
+        let Some((protover, msgval)) = be_i32(&resp.body).zip(resp.body.get(4..).and_then(be_i32))
         else {
             return Err(Error::protocol("short handshake response"));
         };
@@ -195,8 +194,7 @@ impl Connection {
         let resp = self.read_response()?;
         resp.expect_ok("kXR_protocol")?;
 
-        let Some((version, flags)) = be_i32(&resp.body)
-            .zip(resp.body.get(4..).and_then(be_u32))
+        let Some((version, flags)) = be_i32(&resp.body).zip(resp.body.get(4..).and_then(be_u32))
         else {
             return Err(Error::protocol("short kXR_protocol response"));
         };

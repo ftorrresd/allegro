@@ -1,0 +1,127 @@
+# Every push to main, and every pull request aimed at it.
+#
+# allegro is pure Rust: no ROOT, no XRootD client, no CMSSW, nothing from
+# CVMFS. A stock runner with a toolchain is the whole environment, and no job
+# reaches the grid — the tests read the ROOT fixture committed under
+# crates/histogram/tests/data.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push to the same branch makes an in-flight run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup component add rustfmt
+      - run: cargo fmt --all --check
+
+  test:
+    name: clippy + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup component add clippy
+
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-test-
+
+      # --locked everywhere: Cargo.lock is committed, so a build that needs to
+      # change it is a build that is not the one being reviewed.
+      #
+      # Warnings are errors here and nowhere else, so an experiment on a branch
+      # stays comfortable while main stays clean.
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      # Covers the doctests too, which is where most of the API examples live.
+      - run: cargo test --workspace --locked
+
+  msrv:
+    name: minimum supported rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Taken from the manifest rather than written out here, so the promise in
+      # Cargo.toml and the version that gets tested cannot drift apart.
+      - id: msrv
+        run: |
+          version=$(grep -m1 '^rust-version' Cargo.toml | tr -d ' "' | cut -d= -f2)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Cargo.toml declares rust-version = $version"
+
+      - run: rustup toolchain install ${{ steps.msrv.outputs.version }} --profile minimal
+
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: ${{ runner.os }}-cargo-msrv-${{ steps.msrv.outputs.version }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-msrv-${{ steps.msrv.outputs.version }}-
+
+      - run: cargo +${{ steps.msrv.outputs.version }} check --workspace --all-targets --locked
+
+  skeleton:
+    name: new-analysis skeleton builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: allegro
+
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: ${{ runner.os }}-cargo-skeleton-${{ hashFiles('allegro/**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-skeleton-
+
+      # The generated analysis is what a new user meets first, and it is the
+      # part of the repository nothing else compiles: an API change in the
+      # toolkit can leave the template behind without any other job noticing.
+      # So generate one, beside the checkout as the script intends, and build it.
+      - name: Generate an analysis
+        run: allegro/scripts/new-analysis.sh ci-skeleton
+
+      - name: Build it against this checkout
+        working-directory: ci-skeleton
+        run: cargo build --release
+
+      - name: It should run, and say how to be used
+        working-directory: ci-skeleton
+        run: |
+          # With no input file it must exit non-zero with the usage line,
+          # rather than panic or silently succeed.
+          if ./target/release/ci_skeleton >out 2>&1; then
+              echo "expected a non-zero exit when given no input file"
+              cat out
+              exit 1
+          fi
+          cat out
+          grep -q 'usage: ci-skeleton' out
