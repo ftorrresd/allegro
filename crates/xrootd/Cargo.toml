@@ -1,0 +1,31 @@
+[package]
+name = "xrootd"
+description = "A from-scratch XRootD client: framing, TLS and GSI authentication with an X.509 grid proxy"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+aes = "0.8"
+cbc = { version = "0.1", features = ["alloc"] }
+const-oid = "0.9"
+der = "0.7"
+md-5 = "0.10"
+num-bigint-dig = "0.8"
+pem-rfc7468 = "0.7"
+pkcs1 = "0.7"
+pkcs8 = "0.10"
+rand = "0.8"
+rsa = "0.9"
+rustls = { version = "0.23", default-features = false, features = ["std", "tls12", "logging"] }
+rustls-pki-types = "1.15.1"
+rustls-rustcrypto = { version = "0.0.2-alpha", default-features = false, features = ["alloc", "std"] }
+sha1 = "0.10"
+sha2 = "0.10"
+spki = "0.7"
+x509-cert = "0.2"
+
+[lints]
+workspace = true

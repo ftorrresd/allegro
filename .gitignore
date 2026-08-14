@@ -1,0 +1,35 @@
+# Rust build artefacts
+/target/
+**/*.rs.bk
+
+# Cargo.lock is kept: this repo ships a binary, so builds should be reproducible.
+
+# Analysis outputs
+fourMuonMass.root
+fourMuonMass.pdf
+fourMuonMass.png
+*.root
+
+# …except the ROOT-written fixture the histogram tests read.
+!crates/histogram/tests/data/histograms.root
+
+# ROOT / ACLiC build products from the reference C++ macro
+*_C.so
+*_C.d
+*_C_ACLiC_dict_rdict.pcm
+*_cxx.so
+*_cxx.d
+*_cxx_ACLiC_dict_rdict.pcm
+AutoDict_*
+
+# Grid credentials — never commit these
+x509up_u*
+*.pem
+*.p12
+
+# Editor and OS noise
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

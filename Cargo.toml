@@ -1,0 +1,41 @@
+# allegro — CMS NanoAOD analysis in pure Rust.
+#
+[workspace]
+resolver = "2"
+members = [
+    "crates/lorentzvector",
+    "crates/xrootd",
+    "crates/root-io",
+    "crates/histogram",
+    "crates/nanoaod",
+    "crates/example-analysis",
+]
+
+# The crates stack in one direction:
+#
+#   lorentzvector   (kinematics, no dependencies)
+#   xrootd          (the protocol, its own crypto and TLS)
+#   root-io      →  xrootd          (the ROOT format; remote files come from xrootd)
+#   histogram    →  root-io         (TH1/TH2, which round-trip through a ROOT file)
+#   nanoaod      →  the three above  (Events, nano_object!, the analysis prelude)
+#   example-analysis → nanoaod       (the four-muon analysis, as a worked example)
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+license = "MIT"
+repository = "https://github.com/ftorresd/allegro"
+
+[workspace.dependencies]
+lorentzvector = { path = "crates/lorentzvector" }
+xrootd = { path = "crates/xrootd" }
+root-io = { path = "crates/root-io" }
+histogram = { path = "crates/histogram" }
+# What a new analysis depends on; `scripts/new-analysis.sh` wires this up.
+nanoaod = { path = "crates/nanoaod" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+opt-level = 3
